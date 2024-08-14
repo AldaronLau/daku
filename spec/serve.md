@@ -5,6 +5,10 @@ Serve resources over HTTPS.
 SSE is expected to be implemented as an abstraction over this API (rather than
 be provided as its own portal).
 
+## Portal Channels
+
+ 0. Accept HTTPS clients
+
 ## Connection
 
 Client device channel is opened upon readiness.  The channel allocation should

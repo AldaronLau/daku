@@ -1,4 +1,4 @@
-# DateTime 🧪
+# DateTime
 
 ## *Type*: `DateTime`
 

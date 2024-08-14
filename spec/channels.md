@@ -1,20 +1,26 @@
 # Channels
 
-## Allocation
-
-Channels are implicitly allocated.  Channel 0 is always the custom portal
-channel that can send arbitrary messages to the host.  The first portal listed
-in the `daku` WebAssembly custom section will reserve channel 1.  All portal
-channels stay open for the lifetime of the guest.
-
-Additional channels called device channels can be both opened and closed.  They
-must be opened from a portal.  When they are closed, they go to a
-"garbage list".  Once a new device channel is opened, the last closed channel id
-is reüsed for the new channel.  Channels are otherwise opened in consecutive
-ascending order.
-
 ## Channel 0
 
-A channel 0 command is sent as a [`Buffer`](./buffer.html).
+Channel 0 is a special channel that allows you to send arbitrary bytes
+([`Buffer`](./buffer.html)) to the host from the guest.  This is what a custom
+plugin API would use.  Sending commands on channel 0 may also open "Device
+Channels".
 
+## Portal Channels
 
+Portal channels represent a bus (and permission to talk to it) on the computer.
+Portal channels are opened before the program starts (based on the `daku` custom
+section).  Going in order of the portals, will allocate channels in ascending
+order starting from 1.  There may be more than one channel per portal.  They can
+not and will not be closed until the WASM module exits.  
+
+## Device Channels
+
+Device channels represent something (physically or virtually) connected to a
+bus.  Device channels are opened by sending commands to portals (this command
+is not allowed to fail if constructed properly, even if the data is stale - so
+you may open a channel to a disconnected device).  They are allocated after the
+portal channels.  When the device channel is closed it's number goes into a
+garbage list.  The last ID is popped off the garbage list when opening a new
+device channel (if it exists).

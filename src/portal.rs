@@ -33,53 +33,54 @@ pub(crate) unsafe fn ready_list<R>(
 
 #[inline(always)]
 pub(crate) fn init() {
-    READY_LIST.with(|state| {
-        if state.is_some() {
-            return;
-        };
-
-        PORTALS.with(|p| {
-            let mut ready_list = Vec::with_capacity(READY_LIST_CAPACITY);
-
-            #[cfg(feature = "log")]
-            {
-                p[PORTAL_LOG] = sys::Portal::Log as u32;
-            }
-            #[cfg(feature = "prompt")]
-            {
-                p[PORTAL_PROMPT] = sys::Portal::Prompt as u32;
-            }
-
-            let connect = &Connect {
-                ready_capacity: ready_list.capacity(),
-                ready_data: ready_list.as_mut_ptr(),
-                portals_size: p.len(),
-                portals_data: p.as_mut_ptr(),
+    unsafe {
+        READY_LIST.with(|state| {
+            if state.is_some() {
+                return;
             };
-            let connect: *const _ = connect;
 
-            let commands = [Command {
-                size: mem::size_of::<Connect>(),
-                data: connect.cast(),
-                ready: usize::MAX, // ignored because always immediately ready
-                channel: 0,
-            }];
+            PORTALS.with(|p| {
+                let mut ready_list = Vec::with_capacity(READY_LIST_CAPACITY);
 
-            unsafe {
+                #[cfg(feature = "log")]
+                {
+                    p[PORTAL_LOG] = sys::Portal::Log as u32;
+                }
+                #[cfg(feature = "prompt")]
+                {
+                    p[PORTAL_PROMPT] = sys::Portal::Prompt as u32;
+                }
+
+                let connect = &Connect {
+                    ready_capacity: ready_list.capacity(),
+                    ready_data: ready_list.as_mut_ptr(),
+                    portals_size: p.len(),
+                    portals_data: p.as_mut_ptr(),
+                };
+                let connect: *const _ = connect;
+
+                let commands = [Command {
+                    size: mem::size_of::<Connect>(),
+                    data: connect.cast(),
+                    // ignored because always immediately ready
+                    ready: usize::MAX,
+                    channel: 0,
+                }];
+
                 sys::ar(commands.len(), commands.as_ptr());
-            }
 
-            *state = Some(ready_list);
+                *state = Some(ready_list);
 
-            // API initialization
-            #[cfg(feature = "log")]
-            unsafe {
-                crate::api::log::init(p[PORTAL_LOG]);
-            }
-            #[cfg(feature = "prompt")]
-            unsafe {
-                crate::api::prompt::init(p[PORTAL_PROMPT]);
-            }
+                // API initialization
+                #[cfg(feature = "log")]
+                unsafe {
+                    crate::api::log::init(p[PORTAL_LOG]);
+                }
+                #[cfg(feature = "prompt")]
+                unsafe {
+                    crate::api::prompt::init(p[PORTAL_PROMPT]);
+                }
+            });
         });
-    });
+    }
 }

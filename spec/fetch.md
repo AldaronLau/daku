@@ -5,6 +5,10 @@ Do an HTTPS request to specified URL.
 SSE is expected to be implemented as an abstraction over this API (rather than
 be provided as its own portal).
 
+## Portal Channels
+
+ 0. Initiate HTTPS request
+
 ## Connection
 
 Host device channel is opened upon readiness (allocated only if successful).

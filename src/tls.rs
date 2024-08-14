@@ -19,11 +19,19 @@ impl<T> Local<T> {
         Self { data }
     }
 
+    /// Gets a mutable pointer to the wrapped value.
+    pub const fn as_ptr(&self) -> *mut T {
+        self.data.get()
+    }
+
     /// Similar to
     /// [`LocalKey::with_borrow_mut()`](https://doc.rust-lang.org/std/thread/struct.LocalKey.html#method.with_borrow_mut)
+    ///
+    /// # Safety
+    /// Value must not be currently borrowed.
     #[inline(always)]
-    pub fn with<R>(&'static self, f: impl FnOnce(&mut T) -> R) -> R {
-        let data = unsafe { &mut *self.data.get() };
+    pub unsafe fn with<R>(&'static self, f: impl FnOnce(&mut T) -> R) -> R {
+        let data = unsafe { &mut *self.as_ptr() };
 
         f(data)
     }

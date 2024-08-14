@@ -17,5 +17,5 @@ Commands are the way the Daku application sends messages to the environment.
 
 ### Fields
 
- - `addr: opt[T]` Pointer to command data for command `T`
  - `chan: int` Channel to send data on
+ - `addr: opt[T]` Pointer to command data for command `T`

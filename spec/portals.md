@@ -13,8 +13,3 @@ ok to pack smaller pieces of data into one value if 32-bits can be guaranteed to
 most likely never be needed.
 
 Portals should also make use of shared high-level [types](./types.md).
-
-## Kinds
-Some portals only have one command that is sent on the channel to that portal.
-But, there are some portals that can create new channels that accept different
-commands and notify on different events.

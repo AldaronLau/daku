@@ -4,6 +4,10 @@ Receive a line of textual user input from a debugging console.
 
 The text appended to the buffer won't contain the newline character.
 
+## Portal Channels
+
+ 0. Developer prompt
+
 ## Readiness
 
 Becomes ready once a line of text has been entered.  With either

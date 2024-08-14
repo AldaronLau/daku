@@ -16,7 +16,7 @@ A buffer of floating-point audio.
  - `config: opt[Positions]` - Custom channel position configuration, default is
    FLAC/SMPTE/ITU-R recommendations.
 
-# FLAC/SMPTE/ITU-R recommendations
+### FLAC/SMPTE/ITU-R recommendations
 
  - 1 Channel: Mono (Mono)
    1. `(0, 0, 0, 0)`

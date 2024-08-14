@@ -50,6 +50,7 @@ pub mod run;
 pub mod sys;
 pub mod tls;
 
+mod global;
 mod portal;
 mod sealed;
 

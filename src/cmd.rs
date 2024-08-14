@@ -36,25 +36,28 @@ static STATE: Local<State> = Local::new(State {
 /// Add a mock waker to be replaced
 #[inline(always)]
 fn add_waker() -> usize {
-    STATE.with(|state| {
-        let waker = run::new_waker();
+    unsafe {
+        STATE.with(|state| {
+            let waker = run::new_waker();
 
-        if let Some(index) = state.pending.iter().position(|w| w.is_none()) {
-            state.pending[index] = Some(waker);
-            index
-        } else {
-            let index = state.pending.len();
-            state.pending.push(Some(waker));
-            index
-        }
-    })
+            if let Some(index) = state.pending.iter().position(|w| w.is_none())
+            {
+                state.pending[index] = Some(waker);
+                index
+            } else {
+                let index = state.pending.len();
+                state.pending.push(Some(waker));
+                index
+            }
+        })
+    }
 }
 
 /// Defer drop until next flush
 #[inline(never)]
 pub fn defer(mut item: Box<dyn Any>) -> *mut () {
     let ptr: *mut _ = &mut *item;
-    STATE.with(|state| state.drops.push(item));
+    unsafe { STATE.with(|state| state.drops.push(item)) };
     ptr.cast()
 }
 
@@ -71,20 +74,22 @@ pub unsafe fn queue(command: Command) {
 /// Flush commands
 #[inline(never)]
 pub fn flush() {
-    STATE.with(|state| unsafe {
-        portal::ready_list(
-            sys::ar(state.queue.len(), state.queue.as_ptr()),
-            |ready_list| {
-                for ready in ready_list {
-                    if let Some(waker) = state.pending[*ready].take() {
-                        waker.wake();
+    unsafe {
+        STATE.with(|state| {
+            portal::ready_list(
+                sys::ar(state.queue.len(), state.queue.as_ptr()),
+                |ready_list| {
+                    for ready in ready_list {
+                        if let Some(waker) = state.pending[*ready].take() {
+                            waker.wake();
+                        }
                     }
-                }
-                state.queue.clear();
-                state.drops.clear();
-            },
-        )
-    });
+                    state.queue.clear();
+                    state.drops.clear();
+                },
+            )
+        });
+    }
 }
 
 /// Queue and flush
@@ -139,13 +144,15 @@ impl Future for Request {
 
     #[inline(never)]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        STATE.with(|state| {
-            if let Some(ref mut waker) = state.pending[self.0] {
-                *waker = cx.waker().clone();
-                Pending
-            } else {
-                Ready(())
-            }
-        })
+        unsafe {
+            STATE.with(|state| {
+                if let Some(ref mut waker) = state.pending[self.0] {
+                    *waker = cx.waker().clone();
+                    Pending
+                } else {
+                    Ready(())
+                }
+            })
+        }
     }
 }

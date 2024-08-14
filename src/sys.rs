@@ -4,6 +4,11 @@ use core::marker::PhantomData;
 
 use crate::sealed::{Addr, Float, Str};
 
+/// Ready list of size `N`, where `N` must be a power of 2
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone)]
+pub struct ReadyList<const N: usize>(pub [*mut (); N]);
+
 /// Portal IDs
 #[repr(u32)]
 #[derive(Debug, Copy, Clone)]

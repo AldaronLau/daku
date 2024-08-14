@@ -17,19 +17,21 @@ static ASLEEP: Local<bool> = Local::new(false);
 /// Sleep until wake
 #[inline(always)]
 pub fn sleep() {
-    ASLEEP.with(|asleep| {
-        if *asleep {
-            cmd::flush();
-        } else {
-            *asleep = true;
-        }
-    })
+    unsafe {
+        ASLEEP.with(|asleep| {
+            if *asleep {
+                cmd::flush();
+            } else {
+                *asleep = true;
+            }
+        })
+    }
 }
 
 /// Wake
 #[inline(always)]
 pub fn wake() {
-    ASLEEP.with(|asleep| *asleep = false)
+    unsafe { ASLEEP.with(|asleep| *asleep = false) }
 }
 
 unsafe fn clone(ptr: *const ()) -> RawWaker {
