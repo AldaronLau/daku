@@ -46,9 +46,9 @@ licensed as described above, without any additional terms or conditions.
 If you want help using or contributing to this library or specification, feel
 free to send me an email at <aldaronlau@gmail.com>.
 
-[LICENSE\_APACHE]: https://github.com/ardaku/daku/blob/stable/LICENSE_APACHE
-[LICENSE\_BOOST]: https://github.com/ardaku/daku/blob/stable/LICENSE_BOOST
-[LICENSE\_MIT]: https://github.com/ardaku/daku/blob/stable/LICENSE_MIT
+[LICENSE\_APACHE]: https://github.com/ardaku/daku/blob/v1/LICENSE_APACHE
+[LICENSE\_BOOST]: https://github.com/ardaku/daku/blob/v1/LICENSE_BOOST
+[LICENSE\_MIT]: https://github.com/ardaku/daku/blob/v1/LICENSE_MIT
 
 ## Types
 

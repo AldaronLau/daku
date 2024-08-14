@@ -19,7 +19,7 @@ license = "Apache-2.0 OR BSL-1.0 OR MIT"
 description = "Interface to the Daku API"
 repository = "https://github.com/ardaku/daku"
 documentation = "https://docs.rs/daku"
-homepage = "https://github.com/ardaku/daku/blob/stable/CHANGELOG.md"
+homepage = "https://github.com/ardaku/daku/blob/v1/CHANGELOG.md"
 include = ["Cargo.toml", "README.md", "src/*"]
 categories = [
     "api-bindings",
