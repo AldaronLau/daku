@@ -4,7 +4,7 @@ Daku is an asynchronous host interface abstraction API for WebAssembly plugins,
 drivers, applications, and more!  Daku is both an API and a file format.  Ardaku
 is an engine you can use for running Daku modules on different Wasm runtimes.
 
-## Daku Specification v1.0.0-pre.0 (draft v12)
+## Daku Specification v1.0.0-pre.0 (draft v13)
 
 The current version of Daku targets the full WebAssembly 2.0 spec without any
 non-standard or experimental features.

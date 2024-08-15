@@ -9,3 +9,6 @@ Spoken language
  - `identifier: [byte; 2]`
 
 ### Language Identifiers
+
+ - `en`: English
+ - `eo`: Esperanto
