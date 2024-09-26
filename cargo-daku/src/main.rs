@@ -23,15 +23,13 @@ fn main() {
     let plugin = "cargo-daku".green().bold();
     let plugin = format!("  {plugin}");
 
-    println!("{plugin} Finding binary name…");
+    println!("{plugin} Setting up…");
 
     let current_dir = env::current_dir().expect("Couldn't get current dir");
     let manifest = Manifest::from_path(current_dir.join("Cargo.toml")).expect("Failed to find Cargo.toml");
     let package = manifest.package.as_ref().expect("Not a package");
     let name: &str = package.name.as_ref();
     let wasm_file = &format!("./target/bin/{name}.wasm");
-
-    println!("{plugin} Creating local target directory…");
 
     fs::create_dir_all("./target").expect("Failed to create target dir");
 
@@ -90,21 +88,6 @@ fn main() {
         .arg("-o")
         .arg(wasm_file)
         .arg("-Os")
-        .spawn()
-        .expect("failed to execute cargo")
-        .wait()
-        .expect("failed to wait for cargo");
-
-    if !exit_status.success() {
-        panic!("Command failed");
-    }
-
-    println!("{plugin} Stripping…");
-
-    let exit_status = Command::new("wasm-strip")
-        .arg(wasm_file)
-        .arg("-k")
-        .arg("producers")
         .spawn()
         .expect("failed to execute cargo")
         .wait()
