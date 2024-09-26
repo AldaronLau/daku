@@ -4,6 +4,9 @@ use std::{
     process::Command,
 };
 
+use cargo_toml::Manifest;
+use yansi::Paint;
+
 const CARGO_BUILD_RUSTFLAGS: &str = concat!(
     r#" --remap-path-prefix=$PWD=_"#,
     r#" --remap-path-prefix=$HOME/.local/lib/cargo=-"#,
@@ -11,19 +14,29 @@ const CARGO_BUILD_RUSTFLAGS: &str = concat!(
     r#" --remap-path-prefix=$HOME=~"#,
     r#" --remap-path-prefix=$HOME/.cargo/registry/src/=%"#,
     r#" --cfg"#,
-    r#" target_os="daku""#,
+    r#" daku"#,
     r#" -C"#,
     r#" link-args=-zstack-size=32768"#,
 );
 
 fn main() {
-    println!("Creating local target directory…");
+    let plugin = "cargo-daku".green().bold();
+    let plugin = format!("  {plugin}");
+
+    println!("{plugin} Finding binary name…");
+
+    let current_dir = env::current_dir().expect("Couldn't get current dir");
+    let manifest = Manifest::from_path(current_dir.join("Cargo.toml")).expect("Failed to find Cargo.toml");
+    let package = manifest.package.as_ref().expect("Not a package");
+    let name: &str = package.name.as_ref();
+    let wasm_file = &format!("./target/bin/{name}.wasm");
+
+    println!("{plugin} Creating local target directory…");
 
     fs::create_dir_all("./target").expect("Failed to create target dir");
 
-    println!("Compiling…");
+    println!("{plugin} Compiling \"{name}\"…");
 
-    let current_dir = env::current_dir().expect("Couldn't get current dir");
     let target = current_dir.join("target");
     let path = {
         let mut path = env::var_os("PATH").expect("No path!");
@@ -33,8 +46,7 @@ fn main() {
 
         path
     };
-
-    Command::new("cargo")
+    let exit_status = Command::new("cargo")
         .arg("install")
         .arg("--path")
         .arg(".")
@@ -49,13 +61,17 @@ fn main() {
         .wait()
         .expect("failed to wait for cargo");
 
-    println!("Snipping panicking code…");
+    if !exit_status.success() {
+        panic!("Command failed");
+    }
 
-    Command::new("wasm-snip")
-        .arg("./target/bin/hello.wasm")
+    println!("{plugin} Snipping panicking code…");
+
+    let exit_status = Command::new("wasm-snip")
+        .arg(wasm_file)
         .arg("--snip-rust-panicking-code")
         .arg("-o")
-        .arg("./target/bin/hello.wasm")
+        .arg(wasm_file)
         .arg("--")
         .arg("main")
         .spawn()
@@ -63,22 +79,30 @@ fn main() {
         .wait()
         .expect("failed to wait for cargo");
 
-    println!("Optimizing…");
+    if !exit_status.success() {
+        panic!("Command failed");
+    }
 
-    Command::new("wasm-opt")
-        .arg("./target/bin/hello.wasm")
+    println!("{plugin} Optimizing…");
+
+    let exit_status = Command::new("wasm-opt")
+        .arg(wasm_file)
         .arg("-o")
-        .arg("./target/bin/hello.wasm")
+        .arg(wasm_file)
         .arg("-Os")
         .spawn()
         .expect("failed to execute cargo")
         .wait()
         .expect("failed to wait for cargo");
 
-    println!("Stripping…");
+    if !exit_status.success() {
+        panic!("Command failed");
+    }
 
-    Command::new("wasm-strip")
-        .arg("./target/bin/hello.wasm")
+    println!("{plugin} Stripping…");
+
+    let exit_status = Command::new("wasm-strip")
+        .arg(wasm_file)
         .arg("-k")
         .arg("producers")
         .spawn()
@@ -86,11 +110,15 @@ fn main() {
         .wait()
         .expect("failed to wait for cargo");
 
-    let bytes = File::open("./target/bin/hello.wasm")
+    if !exit_status.success() {
+        panic!("Command failed");
+    }
+
+    let bytes = File::open(wasm_file)
         .expect("Failed to open file")
         .metadata()
         .expect("Failed to get file metadata")
         .len();
 
-    println!("Done! ({bytes} bytes)");
+    println!("{plugin} Done! ({bytes} bytes)");
 }

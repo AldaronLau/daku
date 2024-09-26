@@ -1,6 +1,6 @@
 [package]
 name = "cargo-daku"
-version = "0.0.0"
+version = "0.0.1"
 license = "Apache-2.0 OR BSL-1.0 OR MIT"
 description = "Daku API cargo plugin"
 repository = "https://github.com/ardaku/daku"
@@ -19,4 +19,6 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
-nucleide = "0.1"
+cargo_toml = "0.20.5"
+nucleide = "0.1.0"
+yansi = "1.0.1"
